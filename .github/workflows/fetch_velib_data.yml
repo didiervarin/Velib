@@ -1,0 +1,37 @@
+name: Fetch Velib Data
+
+on:
+  schedule:
+    - cron: '*/1 * * * *'  # Ce cron job exécute le workflow toutes les minutes
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+
+    - name: Install dependencies
+      run: pip install requests pandas
+
+    - name: Run script
+      run: python fetch_velib_data.py
+
+    - name: Commit and Push changes
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add stations_info.json
+        git commit -m 'Update stations_info.json'
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
